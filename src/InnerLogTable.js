@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import Table from 'react-bootstrap/Table';
 import Arrow from "./images/downArrow.png"
 
-
 const InnerLogTable = ({data, sort, order,searchResults}) => {
 
     return (  
@@ -48,7 +47,6 @@ const InnerLogTable = ({data, sort, order,searchResults}) => {
                     transform:"rotate(180deg)",
                     height:"10px"
                 }} ></img>}</span></th>
-    
                 </tr>
             </thead>
             <tbody>
