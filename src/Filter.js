@@ -1,177 +1,123 @@
-import React, { useState, useEffect } from 'react'
-import DatePicker from "react-datepicker";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Container, Row, Col, Input, Label, FormGroup } from "reactstrap";
 
+const Filter = (props) => {
+  const navigate = useNavigate();
+  const [actionType, setActionType] = useState();
+  const [applicationType, setApplicationType] = useState();
+  const [applicationId, setApplicationId] = useState();
+  const [searchData, setSearch] = useState({ start: "", end: "" });
 
-import "react-datepicker/dist/react-datepicker.css";
+  const submitButton = () => {
+    if (actionType) {
+      props.filterUsers("actionType", actionType);
+    }
+    if (applicationType) {
+      props.filterUsers("applicationType", applicationType);
+    }
+    if (applicationId) {
+      props.filterApplication("applicationId", applicationId);
+    }
+    if (searchData.start !== "" && searchData.end !== "") {
+      props.filterdate(searchData)
+    }
 
-
-const Filter = ({data, props, sort, order,setSearchResults}) => {
-  const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-
-  const [startdate, setstartdate] = useState(new Date());
-  const [enddate, setenddate] = useState(new Date());
-  const [searchInput, setSearchInput] = useState('');
-
-  const [dateFilter, setDateFilter] = useState({
-    startDate: null,
-    endDate: null
-  })
-  
-    //called when a user selects filter start-date 
-    const handleStartDate = (date) => {
-      setStartDate(date);
+    let searchData1 = actionType ? `actionType=${actionType}` : applicationType ? `applicationType=${applicationType}` : applicationId ? `applicationId=${applicationId}` : searchData.start ? `startDate =${searchData.start},${searchData.end}` : 'No data found'
+    navigate({ pathname: "/", searchData: `${searchData1} ` })
   }
 
-  //called when a user selects filter end-date 
-  const handleEndDate = (date) => {
-      setEndDate(date);
-  }
-
-  const handleFilterByDate = () => {
-    if (startdate && enddate) {
-      
-      const filtereddatedata = data.filter([startdate, enddate]);
-      console.log(filtereddatedata,"filtereddatedata");
+  var actType = props.apiData.reduce((unique, i) => {
+    if(!unique.some(obj => obj.actionType === i.actionType)){
+      unique.push(i);
     }
-}
 
+    return unique;
+  },[]);
 
-  const applyFilter = () => {
-  
-    if (startdate && enddate ) {
-     
-        handleFilterByDate();
-        
+  var appliType = props.apiData.reduce((unique, i) => {
+    if(!unique.some(obj => obj.applicationType === i.applicationType)){
+      unique.push(i);
     }
- 
-   
-    if (!startdate && enddate || startdate && !enddate) {
-        window.alert("Please Make sure you select start-date and end-date");
-    }
-}
-  
-  const searchItems = (searchValue) => {
-    setSearchInput(searchValue)
-    if (searchInput !== '') {
-        const filteredData = data.filter((item) => {
-            return Object.values(item).join('').toLowerCase().includes(searchInput.toLowerCase())
-        })
-        console.log(filteredData,"filterdata");
-        setSearchResults(filteredData)
-    }
-    else{
-      console.log(data,"data");
-        setSearchResults(data)
-    }
-}
+    return unique;
+  },[]);
 
-    return(
-<div>
-
-<div class="container-fluid">
-  
-      <div class="row" style={{textAlign:"center"}}>
-       
-        <h3>
-    Logger search
-  </h3>
-
-          </div>
-        <hr></hr>  
-          </div>
-  
-<form>
-    <div class="container-fluid">
-      <div class="row">
-      
-        <div class="col-sm-2">
-        <label>
-           <p>Action Type</p>
-           <input name="action_type" onChange={(e) => searchItems(e.target.value)}
-                        />
-           {/* <select name="action_type" style={{
-                    paddingTop:"9px"}}>
-  
-                    <option></option>
-                    {data.map(info => {
-                        return <option key={info.actionType == null ? "-/-"  : info.actionType.replace( /_/g, " " )} >
-                            {info.actionType == null ? "-/-"  : info.actionType.replace( /_/g, " " )}
-                        </option>
-                    })}
-                   
-                </select> */}
-         </label>
-       
-        </div>
-        <div class="col-sm-2">
-        <label>
-           <p>Application Type</p>
-           <input name="application_type" onChange={(e) => searchItems(e.target.value)}
-                        />
-           {/* <select name="application type" style={{
-                    paddingTop:"9px"}}>
-  
-                    <option></option>
-                    {data.map(info => {
-                        return <option key={info.applicationType == null ?  "----": info.applicationType.replace( /_/g, " " )} >
-                            {info.applicationType == null ?  "----": info.applicationType.replace( /_/g, " " )}
-                        </option>
-                    })}
-                   
-                </select> */}
-         </label>
-       
-        </div>
-        <div class="col-sm-2">
-        <label>
-           
-           <p className="startDate">From: </p> <div className="datePickerLabel">{startDate ? startDate.toLocaleDateString("fr-CA") : null}</div>
-           <DatePicker selected={startdate} onChange={(date) => setstartdate(date)} handleDateChange={handleStartDate} date={startDate} />
-           
-   
-         </label>
-       
-        </div>
-        <div class="col-sm-2">
-        <label>
-           
-           <p className="todate" >To:</p> <div className="datePickerLabel">{endDate ? endDate.toLocaleDateString("fr-CA") : null}</div>
-           <DatePicker selected={enddate} onChange={(date) => setenddate(date)} handleDateChange={handleEndDate} date={endDate} />
-    
-         </label>
-       
-        </div>
-        <div class="col-sm-2">
-        <label>
-           <p>Application ID</p>
-           <input name="application_id" onChange={(e) => searchItems(e.target.value)}
-                        />
-         </label>
-       
-        </div>
-        <div class="col-sm-2">
-        <label>
-          
-           <button type="button" class="btn btn-primary" onClick={applyFilter} style={{
-                    marginTop:"38px"}}>Submit Logger</button>
-         </label>
-       
-        </div>
-       
-      </div>
-      <br></br>
-      
-      <br></br>
-    </div>
-   
-  
-  
- 
-</form>
-</div>
-    );
-
-    
-}
+  return (
+    <Container>
+      <Row>
+        <Col className="mb-3">
+          <Label>{"ActionType"}</Label>
+          <select value={actionType} onChange={(e) => setActionType(e.target.value)}
+            className="option1">
+            <option value="" />
+            {actType.map((val, i) => (
+              <option key={i} value={val.actionType}>
+                {val.actionType}
+              </option>
+            ))}
+          </select>
+        </Col>
+        <Col className="mb-3 option">
+          <FormGroup>
+            <Label>{"ApplicationTypes"}</Label>
+            <select value={applicationType} onChange={(e) => setApplicationType(e.target.value)}
+              className="option1">
+              <option value="" />
+              {appliType.map((val, i) => {
+                if (val.applicationType !== null) {
+                  return (
+                    <option key={i} value={val.applicationType}>
+                      {val.applicationType}
+                    </option>
+                  )
+                }
+              })}
+            </select>
+          </FormGroup>
+        </Col>
+        <Col className="mb-3">
+          <FormGroup>
+            <Label>{"ApplicationId"}</Label>
+            <Input
+              className="form-control"
+              type="text"
+              onChange={(e) => setApplicationId(e.target.value)}
+            />
+          </FormGroup>
+        </Col>
+        <Col className="mb-3">
+          <FormGroup>
+            <Label>{"Start Dtae"}</Label>
+            <Input
+              className="form-control"
+              value={searchData.start}
+              onChange={(e) => setSearch({ ...searchData, start: e.target.value })}
+              type="date"
+            />
+          </FormGroup>
+        </Col>
+        <Col className="mb-3">
+          <FormGroup>
+            <Label>{"End Dtae"}</Label>
+            <Input
+              className="form-control"
+              value={searchData.end}
+              onChange={(e) => setSearch({ ...searchData, end: e.target.value })}
+              type="date"
+            />
+          </FormGroup>
+        </Col>
+        <Col class="py-2">
+          <button
+            type="button"
+            class="btn btn-primary my-4"
+            onClick={() => submitButton()}
+          >
+            Search logger
+          </button>
+        </Col>
+      </Row>
+    </Container>
+  );
+};
 export default Filter;
